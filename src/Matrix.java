@@ -27,6 +27,14 @@ public class Matrix implements Cloneable {
         return this.matrix[i][j];
     }
 
+    public int getRows() {
+        return this.rows;
+    }
+
+    public int getColumns() {
+        return this.columns;
+    }
+
     public void set(int i, int j, BigDecimal value) {
         this.matrix[i][j] = value;
     }
