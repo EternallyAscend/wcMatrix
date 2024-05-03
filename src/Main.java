@@ -1,33 +1,51 @@
 import java.math.BigDecimal;
-import java.math.BigInteger;
 
 ;
 
 public class Main {
     public static void main(String[] args) {
-        int rows = 16;
-        int columns = 16;
+        int rows = 4;
+        int columns = 4;
         Matrix matrix = new Matrix(rows, columns);
 
-        matrix.print();
+//        matrix.print();
         try {
             testInverse();
+//            matrix.clone().print();
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
-
-            matrix.print();
+            System.out.println("============");
         }
     }
 
     public static void testInverse() throws Exception {
         int rows = 3;
         int columns = 3;
-        Matrix matrix = new Matrix(rows, columns);
         Matrix result = new Matrix(rows, columns);
+        Matrix matrix = new Matrix(rows, columns);
+        int[][] t = {
+                {2, 1, 0},
+                {0, 3, 1},
+                {1, 0, 4}
+        };
+        for (int i = 0; i < rows; i++) {
+            result.set(i, i, BigDecimal.ONE);
+            for (int j = 0; j < columns; j++) {
+                matrix.set(i, j, BigDecimal.valueOf(t[i][j]));
+            }
+        }
         Matrix inverse = matrix.inverse();
-        Matrix temp = matrix.multiply(inverse);
-        System.out.println(result.equals(temp));
+        Matrix temp = matrix.matmul(inverse);
+        System.out.println(result.compareTo(temp));
+//        for (int i = 0; i < rows; i++) {
+//            System.out.println(temp.get(i, i));
+//            System.out.println(result.get(i, i));
+//        }
+    }
+
+    public static void buildKCM() {
+        // TODO Build kCM Matrix.
     }
 }
 
