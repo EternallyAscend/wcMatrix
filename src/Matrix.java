@@ -1,11 +1,17 @@
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class Matrix implements Cloneable {
     public static int MAX_LENGTH = 256; // Integer.MAX_VALUE / 1024;
+    public static int MAX_ERROR_SCALE = MAX_LENGTH / 16;
+    public static int MAX_SCALE = MAX_LENGTH - MAX_ERROR_SCALE;
+    public static Logger logger = Logger.getLogger(Matrix.class.getName());
     private int rows;
     private int columns;
     private BigDecimal[][] matrix;
+
     public Matrix(int rows, int columns) {
         this.rows = rows;
         this.columns = columns;
@@ -34,6 +40,7 @@ public class Matrix implements Cloneable {
         }
     }
 
+    @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < this.rows; i++) {
@@ -51,7 +58,12 @@ public class Matrix implements Cloneable {
         }
         for (int i = 0; i < this.rows; i++) {
             for (int j = 0; j < this.columns; j++) {
-                if (0 != this.matrix[i][j].compareTo(other.matrix[i][j])) {
+                BigDecimal left = new BigDecimal(this.matrix[i][j].toString());
+                BigDecimal right = new BigDecimal(other.matrix[i][j].toString());
+                if (0 != left.setScale(MAX_SCALE, RoundingMode.HALF_UP).compareTo(right.setScale(MAX_SCALE, RoundingMode.HALF_UP))) {
+                    logger.log(Level.INFO,
+                            "Left: " + left.setScale(MAX_SCALE, RoundingMode.HALF_UP) +
+                                    " Right: " + right.setScale(MAX_SCALE, RoundingMode.HALF_UP));
                     return false;
                 }
             }
@@ -64,8 +76,8 @@ public class Matrix implements Cloneable {
         Matrix result = (Matrix) super.clone();
 //        Matrix result = new Matrix(this.rows, this.columns);
         for (int i = 0; i < this.rows; i++) {
-            for (int j = 0; j < this.columns; j++) {
-                result.matrix[i][j] = this.matrix[i][j];
+            if (this.columns >= 0) {
+                System.arraycopy(this.matrix[i], 0, result.matrix[i], 0, this.columns);
             }
         }
         return result;
@@ -73,7 +85,7 @@ public class Matrix implements Cloneable {
 
     public BigDecimal determinant() throws UnsupportedOperationException {
         if (this.rows != this.columns) {
-            throw new UnsupportedOperationException("Determinant can only be calculated for square matrices.");
+            throw new UnsupportedOperationException("Determinant can only be calculated for square matrices.\n");
         }
 
         if (1 == this.rows) {
@@ -99,7 +111,6 @@ public class Matrix implements Cloneable {
     }
 
     public Matrix inverse() throws UnsupportedOperationException, ArithmeticException, CloneNotSupportedException {
-        System.out.println(this.rows + " " + this.columns);
         if (this.rows != this.columns) {
             throw new UnsupportedOperationException("Inverse can only be calculated for square matrices.\n");
         }
@@ -128,8 +139,7 @@ public class Matrix implements Cloneable {
                 copy.set(j, i, subMatrix.determinant().multiply(BigDecimal.valueOf(sign)));
             }
         }
-
-        return copy.multiply(BigDecimal.ONE.divide(determinant, MAX_LENGTH, RoundingMode.CEILING));
+        return copy.multiply(BigDecimal.ONE.divide(determinant, MAX_LENGTH, RoundingMode.HALF_UP));
     }
 
     public Matrix matmul(Matrix right) {
@@ -162,7 +172,7 @@ public class Matrix implements Cloneable {
         if (0 == power) {
             result = new Matrix(this.rows, this.columns);
             for (int i = 0; i < this.rows; i++) {
-                result.matrix[i][i] = new BigDecimal(1);
+                result.matrix[i][i] = BigDecimal.ONE;
             }
         } else {
             result = this.clone();
@@ -179,9 +189,4 @@ public class Matrix implements Cloneable {
         return result;
     }
 
-//    public Matrix wcInverse() {
-//        Matrix result = new Matrix(this.rows, this.columns);
-//        // TODO Finish wcInverse logic based on wc paper.
-//        return result;
-//    }
 }
