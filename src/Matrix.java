@@ -8,9 +8,9 @@ public class Matrix implements Cloneable {
     public static int MAX_ERROR_SCALE = MAX_LENGTH / 16;
     public static int MAX_SCALE = MAX_LENGTH - MAX_ERROR_SCALE;
     public static Logger logger = Logger.getLogger(Matrix.class.getName());
-    private int rows;
-    private int columns;
-    private BigDecimal[][] matrix;
+    private final int rows;
+    private final int columns;
+    private final BigDecimal[][] matrix;
 
     public Matrix(int rows, int columns) {
         this.rows = rows;

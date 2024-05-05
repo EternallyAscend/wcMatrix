@@ -1,10 +1,10 @@
 import java.math.BigDecimal;
 
 public class kCM {
-    int n;
-    int k;
-    int[] x;
-    Matrix matrix;
+    private final int n;
+    private final int k;
+    private final int[] x;
+    private final Matrix matrix;
     public kCM(int n, int k, int[] x) throws UnsupportedOperationException {
         this.n = n;
         this.k = k;
@@ -37,6 +37,26 @@ public class kCM {
             }
         }
         return result;
+    }
+
+    public Matrix calculateA() {
+        Matrix A = new Matrix(k - 1, k - 1);
+        for (int i = 0; i < k - 1; i++) {
+            for (int j = i; j < k - 1; j++) {
+                A.set(i, j - i, BigDecimal.valueOf(x[j - i]));
+            }
+        }
+        return A;
+    }
+
+    public Matrix calculateB() {
+        Matrix B = new Matrix(k - 1, k - 1);
+        for (int i = 0; i < k - 1; i++) {
+            for (int j = 0; j <= i; j++) {
+                B.set(i, j, BigDecimal.valueOf(x[k - 1 - j]));
+            }
+        }
+        return B;
     }
 
     public static Matrix wcInverseKCM(Matrix input) {
