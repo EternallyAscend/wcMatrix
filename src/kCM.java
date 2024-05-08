@@ -94,8 +94,9 @@ public class kCM {
     public Matrix wcInverseKCM(Matrix input) {
         Matrix result = new Matrix(input.getRows(), input.getColumns());
         // Step 1. Calculate det of input matrix.
-        BigDecimal det = input.determinant();
-        // Step 2. Calculate y_1 to y_k-1 according to Eq. 14. TODO
+        BigDecimal det = input.determinant(); // TODO Replace with wcDeterminant.
+        BigDecimal oneOverDet = BigDecimal.ONE.divide(det, Precision.MAX_LENGTH, RoundingMode.HALF_UP);
+        // Step 2. Calculate y_1 to y_k-1 according to Eq. 14. TODO Check rightness.
         // Step 2.1 Calculate A, B, C, D, and T
         Matrix A, B, C, D, T;
         A = calculateInverseA();
@@ -105,17 +106,43 @@ public class kCM {
         T = calculateInverseT();
         // Step 2.2 Construct Ms
         BigDecimal[] Cache = new BigDecimal[k - 1 + k - 2];
+        BigDecimal[] Temp = new BigDecimal[k - 1 + k - 2];
 
         Matrix Ms = new Matrix(k - 2 + k - 1, k - 1 + k - 2);
         for (int i = 0; i < k - 1; i++) {
+            Cache[i] = A.get(i, 0);
             for (int j = 0; j < k - 2; j++) {
-
+                Ms.set(i, j, A.get(i, j + 1));
             }
             for (int j = k - 2; j < k - 2 + k - 1; j++) {
-
+                Ms.set(i, j, B.get(i, j - k + 2));
+            }
+        }
+        for (int i = k - 1; i < k - 1 + k - 2; i++) {
+            Cache[i] = C.get(i - k + 1, 0);
+            for (int j = 0; j < k - 2; j++) {
+                Ms.set(i, j, C.get(i - k + 1, j));
+            }
+            for (int j = k - 2; j < k - 2 + k - 1; j++) {
+                Ms.set(i, j, D.get(i - k + 1, j - k + 2));
             }
         }
         // Step 2.3 Calculate y_1 to y_k-1
+        BigDecimal[] Y = new BigDecimal[n];
+        int flag = -1;
+        if (k * n % 2 == 0) {
+            flag = 1;
+        }
+        BigDecimal value = BigDecimal.valueOf(x[k - 1]).pow(n - k - k + 2);
+        for (int i = 0; i < k - 1; i++) {
+            Y[i] = BigDecimal.valueOf(flag).multiply(oneOverDet).multiply(value).multiply(Ms.determinant()); // TODO Replace with wcDeterminant.
+            flag *= -1;
+            for (int j = 0; j < k - 1 + k - 2; j++) {
+                Temp[j] = Ms.get(j, i);
+                Ms.set(j, i, Cache[j]);
+                Cache[j] = Temp[j];
+            }
+        }
         // Step 3. Calculate y_k to y_n according to Eq. 15. TODO
 
         // Step 4. Construct M^-1. TODO
@@ -123,7 +150,7 @@ public class kCM {
         return result;
     }
 
-    public static boolean testWcInverse(Matrix input) {
+    public boolean testWcInverse(Matrix input) {
         if (input.getRows() != input.getColumns()) {
             throw new UnsupportedOperationException("Matrix is not square.\n");
         }
