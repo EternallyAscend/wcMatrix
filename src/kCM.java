@@ -1,4 +1,5 @@
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 
 public class kCM {
     private final int n;
@@ -39,7 +40,7 @@ public class kCM {
         return result;
     }
 
-    public Matrix calculateA() {
+    public Matrix calculateInverseA() {
         Matrix A = new Matrix(k - 1, k - 1);
         for (int i = 0; i < k - 1; i++) {
             for (int j = i; j < k - 1; j++) {
@@ -49,7 +50,7 @@ public class kCM {
         return A;
     }
 
-    public Matrix calculateB() {
+    public Matrix calculateInverseB() {
         Matrix B = new Matrix(k - 1, k - 1);
         for (int i = 0; i < k - 1; i++) {
             for (int j = 0; j <= i; j++) {
@@ -59,12 +60,62 @@ public class kCM {
         return B;
     }
 
-    public static Matrix wcInverseKCM(Matrix input) {
+    public Matrix calculateInverseC() {
+        Matrix C = new Matrix(k - 2, k - 1);
+        for (int i = 0; i < k - 2; i++) {
+            for (int j = i; j < k - 1; j++) {
+                C.set(i, j - i, BigDecimal.valueOf(x[j - i]));
+            }
+        }
+        return C;
+    }
+
+    public Matrix calculateInverseD() {
+        Matrix D = new Matrix(k - 2, k - 1);
+        for (int i = 0; i < k - 2; i++) {
+            for (int j = 0; j < k - 1; j++) {
+                D.set(i, i + j, BigDecimal.valueOf(x[j]));
+            }
+        }
+        return D;
+    }
+
+    public Matrix calculateInverseT() {
+        Matrix T = new Matrix(k - 1, k - 1);
+        for (int i = 0; i < k - 2; i++) {
+            T.set(i, 0, BigDecimal.valueOf(-x[k - 2 - i]).divide(BigDecimal.valueOf(x[k - 1]), Precision.MAX_LENGTH, RoundingMode.HALF_UP));
+            T.set(i, i + 1, BigDecimal.ONE);
+        }
+
+        T.set(k - 2, 0, BigDecimal.valueOf(-x[0]).divide(BigDecimal.valueOf(x[k - 1]), Precision.MAX_LENGTH, RoundingMode.HALF_UP));
+        return T;
+    }
+
+    public Matrix wcInverseKCM(Matrix input) {
         Matrix result = new Matrix(input.getRows(), input.getColumns());
         // Step 1. Calculate det of input matrix.
         BigDecimal det = input.determinant();
         // Step 2. Calculate y_1 to y_k-1 according to Eq. 14. TODO
-        Matrix A = new Matrix(input.getRows(), input.getColumns());
+        // Step 2.1 Calculate A, B, C, D, and T
+        Matrix A, B, C, D, T;
+        A = calculateInverseA();
+        B = calculateInverseB();
+        C = calculateInverseC();
+        D = calculateInverseD();
+        T = calculateInverseT();
+        // Step 2.2 Construct Ms
+        BigDecimal[] Cache = new BigDecimal[k - 1 + k - 2];
+
+        Matrix Ms = new Matrix(k - 2 + k - 1, k - 1 + k - 2);
+        for (int i = 0; i < k - 1; i++) {
+            for (int j = 0; j < k - 2; j++) {
+
+            }
+            for (int j = k - 2; j < k - 2 + k - 1; j++) {
+
+            }
+        }
+        // Step 2.3 Calculate y_1 to y_k-1
         // Step 3. Calculate y_k to y_n according to Eq. 15. TODO
 
         // Step 4. Construct M^-1. TODO

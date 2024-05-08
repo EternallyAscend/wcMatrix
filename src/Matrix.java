@@ -4,9 +4,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class Matrix implements Cloneable {
-    public static int MAX_LENGTH = 256; // Integer.MAX_VALUE / 1024;
-    public static int MAX_ERROR_SCALE = MAX_LENGTH / 16;
-    public static int MAX_SCALE = MAX_LENGTH - MAX_ERROR_SCALE;
     public static Logger logger = Logger.getLogger(Matrix.class.getName());
     private final int rows;
     private final int columns;
@@ -33,6 +30,18 @@ public class Matrix implements Cloneable {
 
     public int getColumns() {
         return this.columns;
+    }
+
+    public BigDecimal[] getRowI(int i) {
+        return this.matrix[i];
+    }
+
+    public BigDecimal[] getColumnI(int i) {
+        BigDecimal[] result = new BigDecimal[this.rows];
+        for (int j = 0; j < this.rows; j++) {
+            result[j] = this.matrix[j][i];
+        }
+        return result;
     }
 
     public void set(int i, int j, BigDecimal value) {
@@ -68,10 +77,10 @@ public class Matrix implements Cloneable {
             for (int j = 0; j < this.columns; j++) {
                 BigDecimal left = new BigDecimal(this.matrix[i][j].toString());
                 BigDecimal right = new BigDecimal(other.matrix[i][j].toString());
-                if (0 != left.setScale(MAX_SCALE, RoundingMode.HALF_UP).compareTo(right.setScale(MAX_SCALE, RoundingMode.HALF_UP))) {
+                if (0 != left.setScale(Precision.MAX_SCALE, RoundingMode.HALF_UP).compareTo(right.setScale(Precision.MAX_SCALE, RoundingMode.HALF_UP))) {
                     logger.log(Level.INFO,
-                            "Left: " + left.setScale(MAX_SCALE, RoundingMode.HALF_UP) +
-                                    " Right: " + right.setScale(MAX_SCALE, RoundingMode.HALF_UP));
+                            "Left: " + left.setScale(Precision.MAX_SCALE, RoundingMode.HALF_UP) +
+                                    " Right: " + right.setScale(Precision.MAX_SCALE, RoundingMode.HALF_UP));
                     return false;
                 }
             }
@@ -147,7 +156,7 @@ public class Matrix implements Cloneable {
                 copy.set(j, i, subMatrix.determinant().multiply(BigDecimal.valueOf(sign)));
             }
         }
-        return copy.multiply(BigDecimal.ONE.divide(determinant, MAX_LENGTH, RoundingMode.HALF_UP));
+        return copy.multiply(BigDecimal.ONE.divide(determinant, Precision.MAX_LENGTH, RoundingMode.HALF_UP));
     }
 
     public Matrix matmul(Matrix right) {
