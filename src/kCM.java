@@ -129,29 +129,15 @@ public class kCM {
         // Step 1. Calculate det of input matrix.
 //        BigDecimal det = this.matrix.determinant(); // Replace with wcDeterminant.
         BigDecimal det = this.wcDeterminant();
-//        System.out.println("det: " + det);
-//        BigDecimal oneOverDet = BigDecimal.ONE.divide(det, Precision.MAX_LENGTH, RoundingMode.HALF_UP);
-        // Step 2. Calculate y_1 to y_k-1 according to Eq. 14. TODO Check rightness.
+        // Step 2. Calculate y_1 to y_k-1 according to Eq. 14.
         // Step 2.1 Calculate A, B, C, D, and T
         Matrix A, B, C, D, T;
         A = calculateInverseA();
-//        System.out.println("A:");
-//        A.print();
         B = calculateInverseB();
-//        System.out.println("B:");
-//        B.print();
         C = calculateInverseC();
-//        System.out.println("C:");
-//        C.print();
         D = calculateInverseD();
-//        System.out.println("D:");
-//        D.print();
         T = calculateInverseT();
-//        System.out.println("T:");
-//        T.print();
         T = T.quickPower(n - 2 * k + 2);
-//        System.out.println(new StringBuilder().append("T pow ").append(n - 2*k + 2).append(":"));
-//        T.print();
         // Step 2.2 Construct Ms
         BigDecimal[] Cache = new BigDecimal[k - 1 + k - 2];
         BigDecimal[] Temp = new BigDecimal[k - 1 + k - 2];
@@ -162,10 +148,7 @@ public class kCM {
                 Aa.set(i, j, A.get(i, j + 1));
             }
         }
-//        System.out.println("Aa[0]:");
-//        Aa.print();
         Matrix At = T.matmul(Aa);
-//        At.print();
         Matrix Ms = new Matrix(k - 1 + k - 2, k - 2 + k - 1);
         for (int i = 0; i < k - 1; i++) {
             for (int j = 0; j < k - 2; j++) {
@@ -184,9 +167,6 @@ public class kCM {
                 Ms.set(i, j, D.get(i - k + 1, j - k + 2));
             }
         }
-//        System.out.println("Ms[0]:");
-//        Ms.print();
-
         // Step 2.3 Calculate y_1 to y_k-1
         BigDecimal[] Y = new BigDecimal[n];
         int flag = -1;
@@ -196,7 +176,6 @@ public class kCM {
         BigDecimal kk = BigDecimal.valueOf(x[k - 1]).pow(n - k - k + 2);
         for (int i = 0; i < k - 1; i++) {
             BigDecimal detMs = Ms.determinant();
-//            System.out.println("detMs: " + detMs);
             Y[i] = BigDecimal.valueOf(flag).multiply(kk).multiply(detMs).divide(det, Precision.MAX_LENGTH, RoundingMode.HALF_UP);
             flag = -flag;
             if (i < k - 2) {
@@ -206,11 +185,7 @@ public class kCM {
                     Aa.set(j, i, Cache[j]);
                     Cache[j] = Temp[j];
                 }
-//                System.out.println("Aa[" + i + "]:");
-//                Aa.print();
                 At = T.matmul(Aa);
-//                System.out.println("At[" + i + "]:");
-//                At.print();
                 for (int j = 0; j < k - 1; j++) {
                     for (int l = 0; l < k - 2; l++) {
                         Ms.set(j, l, At.get(j, l));
@@ -222,18 +197,13 @@ public class kCM {
                     Ms.set(k - 1 + j, i, Cache[k - 1 + j]);
                     Cache[k - 1 + j] = Temp[k - 1 + j];
                 }
-//                System.out.println("Ms[" + i + "]:");
-//                Ms.print();
             }
         }
-        // Step 3. Calculate y_k to y_n according to Eq. 15. TODO
+        // Step 3. Calculate y_k to y_n according to Eq. 15.
         BigDecimal base = BigDecimal.valueOf(-1).divide(BigDecimal.valueOf(x[k - 1]), Precision.MAX_LENGTH, RoundingMode.HALF_UP);
         for (int i = k - 1; i < n; i++) {
             Y[i] = BigDecimal.ZERO;
             for (int j = 0; j < k - 1; j++) {
-//                StringBuilder sb = new StringBuilder();
-//                sb.append("i = ").append(i).append("\t j = ").append(j).append("\t i - k + 1 + j = ").append(j);
-//                System.out.println(sb);
                 Y[i] = Y[i].add(BigDecimal.valueOf(x[j]).multiply(Y[i - (k - 1) + j]));
             }
             Y[i] = Y[i].multiply(base);
@@ -242,8 +212,7 @@ public class kCM {
 //        for (int i = 0; i < n; i++) {
 //            System.out.println("Y[" + i + "] = " + Y[i]);
 //        }
-        // Step 4. Construct M^-1. TODO
-//        Matrix inverseM = new Matrix(n, n);
+        // Step 4. Construct M^-1.
         for (int i = 0; i < n; i++) {
             for (int j = 0; j < n; j++) {
                 result.set(i, j, Y[(n + i - j) % n]);

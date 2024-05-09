@@ -191,31 +191,6 @@ public class Matrix implements Cloneable {
         return result;
     }
 
-//    public Matrix pow(int power) throws UnsupportedOperationException, CloneNotSupportedException {
-//        if (this.rows != this.columns) {
-//            throw new UnsupportedOperationException("Matrix is not square");
-//        }
-//        Matrix result;
-//        if (0 == power) {
-//            result = new Matrix(this.rows, this.columns);
-//            for (int i = 0; i < this.rows; i++) {
-//                result.matrix[i][i] = BigDecimal.ONE;
-//            }
-//        } else {
-//            result = this.clone();
-//            Matrix base = this.clone();
-//            while (power > 1) {
-//                if (power % 2 == 1) {
-//                    result = result.matmul(base);
-//                }
-//                power /= 2;
-//                base = base.matmul(base);
-//            }
-//            result = result.matmul(base);
-//        }
-//        return result;
-//    }
-
     public Matrix quickPower(int power) throws CloneNotSupportedException { // TODO Replace with Quick Power.
         if (this.rows != this.columns) {
             throw new UnsupportedOperationException("Matrix is not square");
