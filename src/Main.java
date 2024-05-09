@@ -8,7 +8,7 @@ public class Main {
         int columns = 4;
         Matrix matrix = new Matrix(rows, columns);
         try {
-            testInverse();
+//            testInverse();
 //            matrix.clone().print();
 //            buildKCM(8, 2, new int[]{1, 2}).print();
             kCM kCM = new kCM(8, new int[]{1, 2, 3, 4});
@@ -22,8 +22,9 @@ public class Main {
 //            kCM kCM = new kCM(6, new int[]{1, 2});
 //            kCM kCM = new kCM(5, new int[]{1, 2});
 //            kCM kCM = new kCM(4, new int[]{1, 2});
-            kCM.print();
+//            kCM.print();
 //            System.out.println(kCM.getMatrix().determinant());
+//            System.out.println(kCM.wcDeterminant());
             System.out.println(kCM.testWcInverse());
         } catch (Exception e) {
             e.printStackTrace();
