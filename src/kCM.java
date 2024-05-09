@@ -40,11 +40,15 @@ public class kCM {
         return result;
     }
 
+    public Matrix getMatrix() {
+        return this.matrix;
+    }
+
     public Matrix calculateInverseA() {
         Matrix A = new Matrix(k - 1, k - 1);
         for (int i = 0; i < k - 1; i++) {
             for (int j = i; j < k - 1; j++) {
-                A.set(i, j - i, BigDecimal.valueOf(x[j - i]));
+                A.set(i, j, BigDecimal.valueOf(x[j - i]));
             }
         }
         return A;
@@ -63,8 +67,8 @@ public class kCM {
     public Matrix calculateInverseC() {
         Matrix C = new Matrix(k - 2, k - 1);
         for (int i = 0; i < k - 2; i++) {
-            for (int j = i; j < k - 1; j++) {
-                C.set(i, j - i, BigDecimal.valueOf(x[j - i]));
+            for (int j = 0; j <= i; j++) {
+                C.set(i, j, BigDecimal.valueOf(x[k - 1 - (i - j)]));
             }
         }
         return C;
@@ -73,7 +77,7 @@ public class kCM {
     public Matrix calculateInverseD() {
         Matrix D = new Matrix(k - 2, k - 1);
         for (int i = 0; i < k - 2; i++) {
-            for (int j = 0; j < k - 1; j++) {
+            for (int j = 0; i + j < k - 1; j++) {
                 D.set(i, i + j, BigDecimal.valueOf(x[j]));
             }
         }
@@ -91,7 +95,7 @@ public class kCM {
         return T;
     }
 
-    public Matrix wcInverseKCM(Matrix input) {
+    public Matrix wcInverseKCM(Matrix input) throws CloneNotSupportedException {
         Matrix result = new Matrix(input.getRows(), input.getColumns());
         // Step 1. Calculate det of input matrix.
         BigDecimal det = input.determinant(); // TODO Replace with wcDeterminant.
@@ -100,19 +104,35 @@ public class kCM {
         // Step 2.1 Calculate A, B, C, D, and T
         Matrix A, B, C, D, T;
         A = calculateInverseA();
+//        System.out.println("A:");
+//        A.print();
         B = calculateInverseB();
+//        System.out.println("B:");
+//        B.print();
         C = calculateInverseC();
+//        System.out.println("C:");
+//        C.print();
         D = calculateInverseD();
+//        System.out.println("D:");
+//        D.print();
         T = calculateInverseT();
+//        System.out.println("T:");
+//        T.print();
+        T = T.power(n - 2 * k + 2); // TODO Replace with Quick Power.
+//        System.out.println(new StringBuilder().append("T pow ").append(n - 2*k + 2).append(":"));
+//        T.print();
         // Step 2.2 Construct Ms
         BigDecimal[] Cache = new BigDecimal[k - 1 + k - 2];
         BigDecimal[] Temp = new BigDecimal[k - 1 + k - 2];
+        Matrix Aa = new Matrix(k - 1, k - 2);
+        Matrix At = new Matrix(k - 1, k - 2);
 
         Matrix Ms = new Matrix(k - 2 + k - 1, k - 1 + k - 2);
         for (int i = 0; i < k - 1; i++) {
             Cache[i] = A.get(i, 0);
             for (int j = 0; j < k - 2; j++) {
-                Ms.set(i, j, A.get(i, j + 1));
+//                Ms.set(i, j, A.get(i, j + 1));
+                Aa.set(i, j, A.get(i, j + 1));
             }
             for (int j = k - 2; j < k - 2 + k - 1; j++) {
                 Ms.set(i, j, B.get(i, j - k + 2));
@@ -137,32 +157,66 @@ public class kCM {
         for (int i = 0; i < k - 1; i++) {
             Y[i] = BigDecimal.valueOf(flag).multiply(oneOverDet).multiply(value).multiply(Ms.determinant()); // TODO Replace with wcDeterminant.
             flag *= -1;
-            for (int j = 0; j < k - 1 + k - 2; j++) {
-                Temp[j] = Ms.get(j, i);
-                Ms.set(j, i, Cache[j]);
-                Cache[j] = Temp[j];
+            At = T.matmul(Aa);
+            // Exchange A.
+            for (int j = 0; j < k - 1; j++) {
+                for (int l = 0; l < k - 2; l++) {
+                    Ms.set(j, l, At.get(j, l));
+                }
+                if (i < k - 2) {
+                    Temp[j] = Aa.get(j, i);
+                    Aa.set(j, i, Cache[j]);
+                    Cache[j] = Temp[j];
+                }
+            }
+            // Exchange C.
+            for (int j = 0; j < k - 2; j++) {
+                Temp[k - 1 + j] = Ms.get(k - 1 + j, i);
+                Ms.set(k - 1 + j, i, Cache[k - 1 + j]);
+                Cache[k - 1 + j] = Temp[k - 1 + j];
             }
         }
         // Step 3. Calculate y_k to y_n according to Eq. 15. TODO
-
+        BigDecimal base = BigDecimal.valueOf(-1).divide(BigDecimal.valueOf(x[k - 1]), Precision.MAX_LENGTH, RoundingMode.HALF_UP);
+        for (int i = k - 1; i < n; i++) {
+            Y[i] = BigDecimal.ZERO;
+            for (int j = 0; j < k; j++) {
+//                StringBuilder sb = new StringBuilder();
+//                sb.append("i = ").append(i).append("\t j = ").append(j).append("\t i - k + 1 + j = ").append(j);
+//                System.out.println(sb);
+                Y[i] = Y[i].add(BigDecimal.valueOf(x[j]).multiply(Y[i - (k - 1) + j]));
+            }
+            Y[i] = Y[i].multiply(base);
+        }
         // Step 4. Construct M^-1. TODO
-
+//        Matrix inverseM = new Matrix(n, n);
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < n; j++) {
+                result.set(i, j, Y[(i + j) % n]);
+            }
+        }
         return result;
     }
 
-    public boolean testWcInverse(Matrix input) {
-        if (input.getRows() != input.getColumns()) {
+    public boolean testWcInverse() throws CloneNotSupportedException {
+        if (this.matrix.getRows() != this.matrix.getColumns()) {
             throw new UnsupportedOperationException("Matrix is not square.\n");
         }
-        Matrix result = new Matrix(input.getRows(), input.getColumns());
-        for (int i = 0; i < input.getRows(); i++) {
-            for (int j = 0; j < input.getColumns(); j++) {
-                result.set(i, j, BigDecimal.ONE);
-            }
+        Matrix result = new Matrix(this.matrix.getRows(), this.matrix.getColumns());
+        for (int i = 0; i < this.matrix.getRows(); i++) {
+            result.set(i, i, BigDecimal.ONE);
         }
-        Matrix inverse = wcInverseKCM(input);
-        Matrix temp = input.matmul(inverse);
+        Matrix inverse = wcInverseKCM(this.matrix);
+        System.out.println("wcInverseKCM:");
+        inverse.print();
+        Matrix Inverse = this.matrix.inverse();
+        System.out.println("Inverse:");
+        Inverse.print();
+        System.out.println(result.compareTo(this.matrix.matmul(Inverse)));
+        Matrix temp = this.matrix.matmul(inverse);
         return result.compareTo(temp);
     }
 
 }
+
+

@@ -51,7 +51,7 @@ public class Matrix implements Cloneable {
     public void print() {
         for (int i = 0; i < this.rows; i++) {
             for (int j = 0; j < this.columns; j++) {
-                System.out.print(this.matrix[i][j] + " ");
+                System.out.print(this.matrix[i][j].setScale(Precision.MAX_PRINT_LENGTH, RoundingMode.HALF_UP) + "\t");
             }
             System.out.println();
         }
@@ -79,8 +79,8 @@ public class Matrix implements Cloneable {
                 BigDecimal right = new BigDecimal(other.matrix[i][j].toString());
                 if (0 != left.setScale(Precision.MAX_SCALE, RoundingMode.HALF_UP).compareTo(right.setScale(Precision.MAX_SCALE, RoundingMode.HALF_UP))) {
                     logger.log(Level.INFO,
-                            "Left: " + left.setScale(Precision.MAX_SCALE, RoundingMode.HALF_UP) +
-                                    " Right: " + right.setScale(Precision.MAX_SCALE, RoundingMode.HALF_UP));
+                            "At (" + i + ", " + j + ")\nL: " + left.setScale(Precision.MAX_SCALE, RoundingMode.HALF_UP) +
+                                    "\nR: " + right.setScale(Precision.MAX_SCALE, RoundingMode.HALF_UP));
                     return false;
                 }
             }
@@ -181,7 +181,7 @@ public class Matrix implements Cloneable {
         return result;
     }
 
-    public Matrix pow(Matrix input, int power) throws UnsupportedOperationException, CloneNotSupportedException {
+    public Matrix pow(int power) throws UnsupportedOperationException, CloneNotSupportedException {
         if (this.rows != this.columns) {
             throw new UnsupportedOperationException("Matrix is not square");
         }
@@ -206,4 +206,22 @@ public class Matrix implements Cloneable {
         return result;
     }
 
+    public Matrix power(int power) throws CloneNotSupportedException {
+        if (this.rows != this.columns) {
+            throw new UnsupportedOperationException("Matrix is not square");
+        }
+        Matrix result;
+        if (0 == power) {
+            result = new Matrix(this.rows, this.columns);
+            for (int i = 0; i < this.rows; i++) {
+                result.matrix[i][i] = BigDecimal.ONE;
+            }
+        } else {
+            result = this.clone();
+            for (int i = 1; i < power; i++) {
+                result = result.matmul(this);
+            }
+        }
+        return result;
+    }
 }

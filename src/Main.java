@@ -11,8 +11,10 @@ public class Main {
             testInverse();
 //            matrix.clone().print();
 //            buildKCM(8, 2, new int[]{1, 2}).print();
-            kCM kCM = new kCM(8, 2, new int[]{1, 2});
+            kCM kCM = new kCM(8, 4, new int[]{1, 2, 3, 4});
             kCM.print();
+            System.out.println(kCM.getMatrix().determinant());
+            System.out.println(kCM.testWcInverse());
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
