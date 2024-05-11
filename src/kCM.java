@@ -131,7 +131,7 @@ public class kCM {
         BigDecimal det = this.wcDeterminant();
 //        System.out.println("det: " + det);
 //        BigDecimal oneOverDet = BigDecimal.ONE.divide(det, Precision.MAX_LENGTH, RoundingMode.HALF_UP);
-        // Step 2. Calculate y_1 to y_k-1 according to Eq. 14. TODO Check rightness.
+        // Step 2. Calculate y_1 to y_k-1 according to Eq. 14.
         // Step 2.1 Calculate A, B, C, D, and T
         Matrix A, B, C, D, T;
         A = calculateInverseA();
@@ -226,7 +226,7 @@ public class kCM {
 //                Ms.print();
             }
         }
-        // Step 3. Calculate y_k to y_n according to Eq. 15. TODO
+        // Step 3. Calculate y_k to y_n according to Eq. 15.
         BigDecimal base = BigDecimal.valueOf(-1).divide(BigDecimal.valueOf(x[k - 1]), Precision.MAX_LENGTH, RoundingMode.HALF_UP);
         for (int i = k - 1; i < n; i++) {
             Y[i] = BigDecimal.ZERO;
@@ -242,7 +242,7 @@ public class kCM {
 //        for (int i = 0; i < n; i++) {
 //            System.out.println("Y[" + i + "] = " + Y[i]);
 //        }
-        // Step 4. Construct M^-1. TODO
+        // Step 4. Construct M^-1.
 //        Matrix inverseM = new Matrix(n, n);
         for (int i = 0; i < n; i++) {
             for (int j = 0; j < n; j++) {

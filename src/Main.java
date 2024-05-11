@@ -12,6 +12,9 @@ public class Main {
 //            matrix.clone().print();
 //            buildKCM(8, 2, new int[]{1, 2}).print();
             kCM kCM = new kCM(8, new int[]{1, 2, 3, 4});
+//            kCM.getMatrix().power(2).print();
+//            System.out.println();
+//            kCM.getMatrix().quickPower(2).print();
 
 //            kCM kCM = new kCM(8, new int[]{1, 2, 3});
 //            kCM kCM = new kCM(7, new int[]{1, 2, 3});
