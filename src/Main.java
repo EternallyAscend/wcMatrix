@@ -11,10 +11,8 @@ public class Main {
 //            testInverse();
 //            matrix.clone().print();
 //            buildKCM(8, 2, new int[]{1, 2}).print();
-            kCM kCM = new kCM(8, new int[]{1, 2, 3, 4});
-//            kCM.getMatrix().power(2).print();
-//            System.out.println();
-//            kCM.getMatrix().quickPower(2).print();
+            //kCM kCM = new kCM(8, new int[]{5,2,9,3});
+            kCBM kcbm=new kCBM(6,new int[]{1,2,3});
 
 //            kCM kCM = new kCM(8, new int[]{1, 2, 3});
 //            kCM kCM = new kCM(7, new int[]{1, 2, 3});
@@ -28,7 +26,9 @@ public class Main {
 //            kCM.print();
 //            System.out.println(kCM.getMatrix().determinant());
 //            System.out.println(kCM.wcDeterminant());
-            System.out.println(kCM.testWcInverse());
+
+            //System.out.println(kCM.testWcInverse());
+            System.out.println(kcbm.testWcInverse());
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
